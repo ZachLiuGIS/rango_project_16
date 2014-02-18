@@ -14,6 +14,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 TEMPLATES_PATH = os.path.join(BASE_DIR, "templates")
 STATIC_PATH = os.path.join(BASE_DIR, "static")
 MEDIA_PATH = os.path.join(BASE_DIR, 'media')
+DATABASE_PATH = os.path.join(BASE_DIR, 'rango.db')
 
 
 # Quick-start development settings - unsuitable for production
@@ -39,6 +40,7 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'south',
     'rango',
 )
 
@@ -62,7 +64,7 @@ WSGI_APPLICATION = 'rango_project_16.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'NAME': DATABASE_PATH,
     }
 }
 
