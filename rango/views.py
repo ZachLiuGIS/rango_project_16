@@ -181,5 +181,6 @@ def user_logout(request):
     logout(request)
     return redirect("rango:index")
 
+
 def about(request):
     return render(request, 'rango/about.html')
