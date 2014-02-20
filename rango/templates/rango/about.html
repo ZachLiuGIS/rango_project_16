@@ -5,7 +5,18 @@
 
 {% block body_block %}
    <h1>About Rango</h1>
-        <p>This is a tutorial of rango project based on Django 1.6.2</p>
+        {% if visits > 0 %}
+            {% if user.is_authenticated %}
+                <p>Hello, {{ user.username }}</p>
+            {% endif%}
+                <p>This is the {{ visits }} time you visit our site!</p>
+        {% else %}
+            {% if user.is_authenticated %}
+                <h1>Welcome {{ user.username }} for your first visit!</h1>
+            {% else %}
+                <h1>Welcome! This is your first visit!</h1>
+            {% endif %}
+        {% endif %}
         <a href="/rango/">Home</a><br />
         <img src="{% static 'rango/images/rango-picture.png' %}" alt="Picture of Rango" />
 {% endblock %}

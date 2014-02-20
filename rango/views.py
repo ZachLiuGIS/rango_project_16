@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.core.urlresolvers import reverse
@@ -17,22 +19,42 @@ def encode_url(name):
 def decode_url(url):
     return url.replace('_', ' ')
 
+def index(request):
+    category_list = Category.objects.all()
+    context_dict = {'categories': category_list}
 
-# Create your views here.
-class IndexView(generic.ListView):
-    template_name = 'rango/index.html'
-    context_object_name = 'categories'
+    for category in category_list:
+        category.url = encode_url(category.name)
 
-    def get_queryset(self):
-        """Return the last five published polls."""
-        categories = Category.objects.order_by('-views')[:5]
-        for item in categories:
-            item.url = encode_url(item.name)
-        return categories
+    page_list = Page.objects.order_by('-views')[:5]
+    context_dict['pages'] = page_list
+
+    #### NEW CODE ####
+    # Obtain our Response object early so we can add cookie information.
+    response = render(request, 'rango/index.html', context_dict)
+
+    # Get the number of visits to the site.
+    # We use the COOKIES.get() function to obtain the visits cookie.
+    # If the cookie exists, the value returned is casted to an integer.
+    # If the cookie doesn't exist, we default to zero and cast that.
+    #visits = int(request.COOKIES.get('visits', '0'))
+
+    if request.session.get('last_visit'):
+        last_visit_time = request.session.get('last_visit')
+        visits = request.session.get('visits', 0)
+
+        if (datetime.now() - datetime.strptime(last_visit_time[:-7], "%Y-%m-%d %H:%M:%S")).seconds > 5:
+            request.session['visits'] = visits + 1
+            request.session['last_visit'] = str(datetime.now())
+    else:
+        # The get returns None, and the session does not have a value for the last visit.
+        request.session['last_visit'] = str(datetime.now())
+        request.session['visits'] = 1
+
+    return response
 
 
 def category(request, category_name_url):
-
     # Change underscores in the category name to spaces.
     # URLs don't handle spaces well, so we encode them as underscores.
     # We can then simply replace the underscores with spaces again to get the name.
@@ -183,4 +205,22 @@ def user_logout(request):
 
 
 def about(request):
-    return render(request, 'rango/about.html')
+    if request.session.get('visits'):
+        count = request.session.get('visits')
+    else:
+        count = 0
+    return render(request, 'rango/about.html', {'visits': count})
+
+
+# Create your views here.
+#class IndexView(generic.ListView):
+#    template_name = 'rango/index.html'
+#    context_object_name = 'categories'
+#
+#    def get_queryset(self):
+#        """Return the last five published polls."""
+#        categories = Category.objects.order_by('-views')[:5]
+#        for item in categories:
+#            item.url = encode_url(item.name)
+#
+#        return categories
