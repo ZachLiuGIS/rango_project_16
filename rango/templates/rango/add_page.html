@@ -1,27 +1,51 @@
 {% extends 'rango/base.html' %}
 
+{% load form_tags %}
+
 {% block title %}Add Page{% endblock %}
 
 {% block body_block %}
-   <h1>Add a Page</h1>
+    <div class="jumbotron zl-add-category-div">
         {% if not category_name_url %}
             <div style="color: red;">The specified category does not exist!</div>
         {% else %}
-            <form id="page_form" method="post" action="{% url 'rango:add_page' category_name_url %}">
-
+            <h2 class="content-heading">Add Page</h2>
+            <form class="form-add-page zl-form" role="form" action="{% url 'rango:add_page' category_name_url %}" method="POST">
                 {% csrf_token %}
+
                 {% for hidden in form.hidden_fields %}
                     {{ hidden }}
                 {% endfor %}
 
                 {% for field in form.visible_fields %}
-                    {{ field.errors }}
-                    {{ field.help_text}}
-                    {{ field }}
+                    {% if field.errors %}
+                        <div class="form-group error">
+                            {% if field.help_text %}
+                                <label class="control-label">{{ field.help_text }}</label>
+                            {% else%}
+                                <label class="control-label">{{ field.label }}</label>
+                            {% endif %}
+
+                            <div class="controls">{{ field|addcss:"form-control" }}</div>
+
+                            <div class="zl-form-error">
+                                {% for error in  field.errors %}{{ error }}{% endfor %}
+                            </div>
+                        </div>
+                    {% else %}
+                        <div class="form-group">
+                            {% if field.help_text %}
+                                <label class="control-label">{{ field.help_text }}</label>
+                            {% else%}
+                                <label class="control-label">{{ field.label }}</label>
+                            {% endif %}
+                            {{ field|addcss:"form-control" }}
+                        </div>
+                    {% endif %}
                 {% endfor %}
 
-                <input type="submit" name="submit" value="Add Page" />
+                <button class="btn btn-primary" type="submit">Add Page</button>
             </form>
-
         {% endif %}
+    </div> <!-- /container -->
 {% endblock %}

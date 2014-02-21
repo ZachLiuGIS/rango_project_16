@@ -14,7 +14,7 @@
 .zl-form {
   max-width: 350px;
   padding: 15px;
-  margin: 0 50px;
+  margin: 0 30px;
 }
 
 
@@ -22,4 +22,13 @@
 h2.content-heading{
     font-size: 36px;
     font-weight: bold;
+}
+
+.category-search-result {
+    padding: 15px;
+}
+
+/* side-bar */
+.zl-sidebar .nav>li>a {
+    padding: 5px 15px;
 }

@@ -27,6 +27,7 @@
                         {% if user.is_authenticated %}
                             <li><a href="{% url 'rango:restricted' %}">Restricted Page</a></li>
                             <li><a href="{% url 'rango:add_category' %}">Add Category</a></li>
+                            <li><a href="{% url 'rango:profile' %}">User Profile</a></li>
                             <li><a href="{% url 'rango:logout' %}">Logout</a></li>
                         {% else %}
                             <li><a href="{% url 'rango:register' %}">Register Here</a></li>
@@ -48,9 +49,15 @@
 
         <div class="container zl-body-main">
             <div class="row">
-                <div class="col-xs-12 col-md-3 sidebar-module well">
+                <div class="col-xs-12 col-md-3 sidebar-module well zl-sidebar">
                     {% block sidebar_block %}
                     {% endblock %}
+                    <div id="cats">
+                       {% if cat_list %}
+                           <ul class="nav nav-list"><li>Category List</li></ul>
+                           {% include 'rango/category_list.html' with cat_list=cat_list %}
+                       {% endif %}
+                    </div>
                 </div>
                 <div class="col-xs-6 col-md-9 zl-content-main">
                     {% block body_block %}{% endblock %}

@@ -7,11 +7,14 @@ from django.views import generic
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 
-from rango.models import Category, Page
+from django.contrib.auth.models import User
+from rango.models import Category, Page, UserProfile
 from rango.forms import CategoryForm, PageForm, UserForm, UserProfileForm
 
+from rango.bing_search import run_query
 
-# Helper functions
+
+## Helper functions
 def encode_url(name):
     return name.replace(' ', '_')
 
@@ -20,9 +23,21 @@ def decode_url(url):
     return url.replace('_', ' ')
 
 
+def get_category_list():
+    cat_list = Category.objects.all()
+
+    for cat in cat_list:
+        cat.url = encode_url(cat.name)
+
+    return cat_list
+
+
+## Views
 def index(request):
     category_list = Category.objects.order_by('-views')[:5]
     context_dict = {'categories': category_list}
+    cat_list = get_category_list()
+    context_dict['cat_list'] = cat_list
 
     for category in category_list:
         category.url = encode_url(category.name)
@@ -56,6 +71,7 @@ def index(request):
 
 
 def category(request, category_name_url):
+
     # Change underscores in the category name to spaces.
     # URLs don't handle spaces well, so we encode them as underscores.
     # We can then simply replace the underscores with spaces again to get the name.
@@ -66,6 +82,9 @@ def category(request, category_name_url):
     context_dict = {'category_name': category_name}
     context_dict['category_name_url'] = category_name_url
 
+    cat_list = get_category_list()
+    context_dict['cat_list'] = cat_list
+
     try:
         # Can we find a category with the given name?
         # If we can't, the .get() method raises a DoesNotExist exception.
@@ -74,7 +93,7 @@ def category(request, category_name_url):
 
         # Retrieve all of the associated pages.
         # Note that filter returns >= 1 model instance.
-        pages = Page.objects.filter(category=category)
+        pages = Page.objects.filter(category=category).order_by('-views')
 
         # Adds our results list to the template context under name pages.
         context_dict['pages'] = pages
@@ -87,6 +106,12 @@ def category(request, category_name_url):
         # We get here if we didn't find the specified category.
         # Don't do anything - the template displays the "no category" message for us.
         pass
+
+    if request.method == 'POST':
+        query = request.POST['query-category'].strip()
+        if query:
+            result_list = run_query(query)
+            context_dict['result_list'] = result_list
 
     # Go render the response and return it to the client.
     return render(request, 'rango/category.html', context_dict)
@@ -103,10 +128,14 @@ def add_category(request):
             print form.errors
     else:
         form = CategoryForm()
-    return render(request, 'rango/add_category.html', {'form': form})
+
+    cat_list = get_category_list()
+    context_dict = {'cat_list': cat_list, 'form': form}
+    return render(request, 'rango/add_category.html', context_dict)
 
 
 def add_page(request, category_name_url):
+    cat_list = get_category_list()
     category_name = decode_url(category_name_url)
 
     if request.method == 'POST':
@@ -133,10 +162,12 @@ def add_page(request, category_name_url):
 
     return render(request, "rango/add_page.html", {'category_name_url': category_name_url,
                                               'category_name': category_name,
-                                              'form': form})
+                                              'form': form,
+                                              'cat_list': cat_list})
 
 
 def register(request):
+    cat_list = get_category_list()
     registered = False
 
     if request.method == 'POST':
@@ -168,11 +199,13 @@ def register(request):
     return render(request, "rango/register.html", {
         'user_form': user_form,
         'profile_form': profile_form,
-        'registered': registered
+        'registered': registered,
+        'cat_list': cat_list
     })
 
 
 def user_login(request):
+    cat_list = get_category_list()
     if request.method == 'POST':
 
         username = request.POST['username']
@@ -191,7 +224,38 @@ def user_login(request):
             return HttpResponse("Invalid login details supplied.")
 
     else:
-        return render(request, 'rango/login.html')
+        return render(request, 'rango/login.html', {'cat_list': cat_list})
+
+
+def search(request):
+
+    result_list = []
+
+    if request.method == 'POST':
+        query = request.POST['query'].strip()
+
+        if query:
+            result_list = run_query(query)
+            print result_list
+
+    return render(request, 'rango/search.html', {'result_list': result_list})
+
+
+@login_required
+def profile(request):
+    cat_list = get_category_list()
+    context_dict = {'cat_list': cat_list}
+    u = User.objects.get(username=request.user)
+
+    try:
+        up = UserProfile.objects.get(user=u)
+
+    except:
+        up = None
+
+    context_dict['user'] = u
+    context_dict['userprofile'] = up
+    return render(request, 'rango/profile.html', context_dict)
 
 
 @login_required
@@ -205,12 +269,31 @@ def user_logout(request):
     return redirect("rango:index")
 
 
+def track_url(request):
+    page_id = None
+    url = "{% url 'rango:index' %}"
+
+    if request.method == 'GET':
+        if 'page_id' in request.GET:
+            page_id = request.GET['page_id']
+            try:
+                page = Page.objects.get(id=page_id)
+                page.views += 1
+                page.save()
+                url = page.url
+            except:
+                pass
+
+    return redirect(url)
+
+
 def about(request):
+    cat_list = get_category_list()
     if request.session.get('visits'):
         count = request.session.get('visits')
     else:
         count = 0
-    return render(request, 'rango/about.html', {'visits': count})
+    return render(request, 'rango/about.html', {'visits': count, 'cat_list': cat_list})
 
 
 # Create your views here.
