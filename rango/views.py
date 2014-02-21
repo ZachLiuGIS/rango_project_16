@@ -19,8 +19,9 @@ def encode_url(name):
 def decode_url(url):
     return url.replace('_', ' ')
 
+
 def index(request):
-    category_list = Category.objects.all()
+    category_list = Category.objects.order_by('-views')[:5]
     context_dict = {'categories': category_list}
 
     for category in category_list:

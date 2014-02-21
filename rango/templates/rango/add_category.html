@@ -1,28 +1,48 @@
-<!DOCTYPE html>
-<html>
-    <head>
-        <title>Rango</title>
-    </head>
+{% extends 'rango/base.html' %}
 
-    <body>
-        <h1>Add a Category</h1>
+{% load form_tags %}
 
-            <form id="category_form" method="post" action="{% url 'rango:add_category' %}">
+{% block title %}Add Category{% endblock %}
 
-                {% csrf_token %}
-                {% for hidden in form.hidden_fields %}
-                    {{ hidden }}
-                {% endfor %}
+{% block body_block %}
+    <div class="container jumbotron zl-add-category-div">
+        <h2 class="content-heading">Add Category</h2>
+        <form class="form-add-category zl-form" role="form" action="{% url 'rango:add_category' %}" method="POST">
+            {% csrf_token %}
 
-                {% for field in form.visible_fields %}
-                    {{ field.errors }}
-                    {{ field.help_text}}
-                    {{ field }}
-                {% endfor %}
+            {% for hidden in form.hidden_fields %}
+                {{ hidden }}
+            {% endfor %}
 
-                <input type="submit" name="submit" value="Create Category" />
-            </form>
+            {% for field in form.visible_fields %}
+                {% if field.errors %}
+                    <div class="form-group error">
+                        {% if field.help_text %}
+                            <label class="control-label">{{ field.help_text }}</label>
+                        {% else%}
+                            <label class="control-label">{{ field.label }}</label>
+                        {% endif %}
 
-    </body>
+                        <div class="controls">{{ field|addcss:"form-control" }}</div>
 
-</html>
+                        <div class="zl-form-error">
+                            {% for error in  field.errors %}{{ error }}{% endfor %}
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="form-group">
+                        {% if field.help_text %}
+                            <label class="control-label">{{ field.help_text }}</label>
+                        {% else%}
+                            <label class="control-label">{{ field.label }}</label>
+                        {% endif %}
+                        {{ field|addcss:"form-control" }}
+                    </div>
+                {% endif %}
+            {% endfor %}
+
+            <button class="btn btn-lg btn-primary btn-block" type="submit">Add Category</button>
+        </form>
+
+    </div> <!-- /container -->
+{% endblock %}

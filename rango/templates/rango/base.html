@@ -11,6 +11,7 @@
 
         <!-- Bootstrap -->
         <link href="{% static 'bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
+        <link href="{% static 'rango/css/main.css' %}" rel="stylesheet">
     </head>
 
     <body>
@@ -22,31 +23,48 @@
                 </div>
                 <div class="navbar-collapse collapse">
                     <ul class="nav navbar-nav">
+                            <li><a href="{% url 'rango:about' %}">About</a></li>
                         {% if user.is_authenticated %}
                             <li><a href="{% url 'rango:restricted' %}">Restricted Page</a></li>
+                            <li><a href="{% url 'rango:add_category' %}">Add Category</a></li>
                             <li><a href="{% url 'rango:logout' %}">Logout</a></li>
-                            <li><a href="{% url 'rango:add_category' %}">Add a New Category</a></li>
                         {% else %}
                             <li><a href="{% url 'rango:register' %}">Register Here</a></li>
                             <li><a href="{% url 'rango:login' %}">Login</a></li>
                         {% endif %}
-                            <li><a href="{% url 'rango:about' %}">About</a></li>
                     </ul>
-                    <form class="navbar-form navbar-right" role="form">
-                        <div class="form-group">
-                            <input type="text" placeholder="Email" class="form-control">
-                        </div>
-                        <div class="form-group">
-                            <input type="password" placeholder="Password" class="form-control">
-                        </div>
-                        <button type="submit" class="btn btn-success">Sign in</button>
-                    </form>
+                    <!--<form class="navbar-form navbar-right" role="form">-->
+                        <!--<div class="form-group">-->
+                            <!--<input type="text" placeholder="Email" class="form-control">-->
+                        <!--</div>-->
+                        <!--<div class="form-group">-->
+                            <!--<input type="password" placeholder="Password" class="form-control">-->
+                        <!--</div>-->
+                        <!--<button type="submit" class="btn btn-success">Sign in</button>-->
+                    <!--</form>-->
                 </div><!--/.navbar-collapse -->
             </div>
-        </div>
-        <div>
-            {% block body_block %}{% endblock %}
-        </div>
+        </div> <!-- end of nav-->
+
+        <div class="container zl-body-main">
+            <div class="row">
+                <div class="col-xs-12 col-md-3 sidebar-module well">
+                    {% block sidebar_block %}
+                    {% endblock %}
+                </div>
+                <div class="col-xs-6 col-md-9 zl-content-main">
+                    {% block body_block %}{% endblock %}
+                </div>
+            </div>
+        </div><!-- end of main body -->
+
+        <div class="container zl-footer">
+            <footer>
+                <p>&copy; Rango Project (Powered by Django 1.6) 2014</p>
+            </footer>
+        </div><!-- end of container -->
+
+
     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
     <script src="https://code.jquery.com/jquery.js"></script>
     <!-- Include all compiled plugins (below), or include individual files as needed -->

@@ -3,16 +3,28 @@
 {% block title %}Login{% endblock %}
 
 {% block body_block %}
-    <h1>Login to Rango</h1>
-
-        <form id="login_form" method="post" action="/rango/login/">
+    <div class="container jumbotron zl-login-div">
+        <h2 class="content-heading">Login to Rango</h2>
+        <form class="form-signin zl-form" role="form" action="{% url 'rango:login' %}" method="POST">
             {% csrf_token %}
 
-            Username: <input type="text" name="username" value="" size="50" />
-            <br />
-            Password: <input type="password" name="password" value="" size="50" />
-            <br />
+            <div class="form-group">
+                <label for="username">User Name:</label>
+                <input type="text" id="username" name="username" class="form-control" placeholder="User Name" required autofocus>
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" class="form-control" placeholder="Password" required>
+            </div>
 
-            <input type="submit" value="submit" />
+
+
+
+            <!--<label class="checkbox">-->
+              <!--<input type="checkbox" value="remember-me"> Remember me-->
+            <!--</label>-->
+            <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
         </form>
+
+    </div> <!-- /container -->
 {% endblock %}

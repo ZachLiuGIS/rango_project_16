@@ -5,3 +5,21 @@
     height: 70%;
     right: 10px;
 }
+
+/* form */
+.zl-form-error {
+    color: red;
+}
+
+.zl-form {
+  max-width: 350px;
+  padding: 15px;
+  margin: 0 50px;
+}
+
+
+/* main content */
+h2.content-heading{
+    font-size: 36px;
+    font-weight: bold;
+}

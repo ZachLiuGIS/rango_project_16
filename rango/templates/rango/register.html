@@ -1,29 +1,65 @@
 {% extends 'rango/base.html' %}
 
+{% load form_tags %}
+
 {% block title %}Register{% endblock %}
 
 {% block body_block %}
-    <h1>Register with Rango</h1>
+        <div class="container jumbotron zl-register-div">
 
-        {% if registered %}
-        Rango says: <strong>thank you for registering!</strong>
-        <a href="{% url 'rango:index' %}">Return to the homepage.</a><br />
-        {% else %}
-        Rango says: <strong>register here!</strong><br />
+            {% if registered %}
+                Rango says: <strong>thank you for registering!</strong>
+                <a href="{% url 'rango:index' %}">Return to the homepage.</a><br />
+            {% else %}
 
-        <form id="user_form" method="post" action="{% url 'rango:register'%}"
-                enctype="multipart/form-data">
+            <h2 class="content-heading">Register with Rango</h2>
+            <form class="form-register zl-form" id="user_form" method="post" action="{% url 'rango:register'%}"
+                    enctype="multipart/form-data">
 
-            {% csrf_token %}
+                {% csrf_token %}
 
-            <!-- Display each form. The as_p method wraps each element in a paragraph
-                 (<p>) element. This ensures each element appears on a new line,
-                 making everything look neater. -->
-            {{ user_form.as_p }}
-            {{ profile_form.as_p }}
 
-            <!-- Provide a button to click to submit the form. -->
-            <input type="submit" name="submit" value="Register" />
-        </form>
+                {% for field in user_form.visible_fields %}
+                    {% if field.errors %}
+                        <div class="form-group error">
+                            <label class="control-label">{{ field.label }}</label>
+
+                            <div class="controls">{{ field|addcss:"form-control" }}</div>
+
+                            <div class="zl-form-error">
+                                {% for error in  field.errors %}{{ error }}{% endfor %}
+                            </div>
+                        </div>
+                    {% else %}
+                        <div class="form-group">
+                                <label class="control-label">{{ field.label }}</label>
+                            {{ field|addcss:"form-control" }}
+                        </div>
+                    {% endif %}
+                {% endfor %}
+
+                {% for field in profile_form.visible_fields %}
+                    {% if field.errors %}
+                        <div class="form-group error">
+                            <label class="control-label">{{ field.label }}</label>
+
+                            <div class="controls">{{ field|addcss:"form-control" }}</div>
+
+                            <div class="zl-form-error">
+                                {% for error in  field.errors %}{{ error }}{% endfor %}
+                            </div>
+                        </div>
+                    {% else %}
+                        <div class="form-group">
+                            <label class="control-label">{{ field.label }}</label>
+                            {{ field|addcss:"form-control" }}
+                        </div>
+                    {% endif %}
+                {% endfor %}
+
+                <button class="btn btn-lg btn-primary btn-block" type="submit">Register</button>
+            </form>
         {% endif %}
+        </div>
+
 {% endblock %}
