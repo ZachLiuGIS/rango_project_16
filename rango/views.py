@@ -1,4 +1,5 @@
 from datetime import datetime
+import json
 
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse, HttpResponseRedirect, Http404
@@ -23,13 +24,22 @@ def decode_url(url):
     return url.replace('_', ' ')
 
 
-def get_category_list():
-    cat_list = Category.objects.all()
+def get_category_list(max_results=0, starts_with=''):
+    cat_list = []
+    if starts_with:
+        cat_list = Category.objects.filter(name__istartswith=starts_with)
+    else:
+        cat_list = Category.objects.all()
+
+    if max_results > 0:
+        if len(cat_list) > max_results:
+            cat_list = cat_list[:max_results]
 
     for cat in cat_list:
-        cat.url = encode_url(cat.name)
+            cat.url = encode_url(cat.name)
 
     return cat_list
+
 
 
 ## Views
@@ -296,15 +306,58 @@ def about(request):
     return render(request, 'rango/about.html', {'visits': count, 'cat_list': cat_list})
 
 
-# Create your views here.
-#class IndexView(generic.ListView):
-#    template_name = 'rango/index.html'
-#    context_object_name = 'categories'
-#
-#    def get_queryset(self):
-#        """Return the last five published polls."""
-#        categories = Category.objects.order_by('-views')[:5]
-#        for item in categories:
-#            item.url = encode_url(item.name)
-#
-#        return categories
+
+
+## Ajax Views
+@login_required
+def like_category(request):
+    cat_id=None
+    if request.method == 'GET':
+        cat_id = request.GET['category_id']
+
+    likes = 0
+    dict = {'likes': 0, 'user': 'zach'}
+    if cat_id:
+        category = Category.objects.get(id=int(cat_id))
+        if category:
+            likes = category.likes + 1
+            category.likes = likes
+            dict['likes'] += likes
+            category.save()
+
+    return HttpResponse(json.dumps(dict))
+
+
+def suggest_category(request):
+    cat_list = []
+    starts_with = ''
+    if request.method == 'GET':
+        starts_with = request.GET['suggestion']
+
+    cat_list = get_category_list(8, starts_with)
+
+    return render(request, 'rango/category_list.html', {'cat_list': cat_list })
+
+
+@login_required
+def auto_add_page(request):
+    context_dict = {}
+    if request.method == 'GET':
+        cat_id = request.GET['category_id']
+        url = request.GET['url']
+        title = request.GET['title']
+
+        if cat_id:
+            category = Category.objects.get(id=int(cat_id))
+            if category:
+                if url and title:
+                    p = Page.objects.get_or_create(category=category, title=title, url=url)
+                pages = Page.objects.filter(category=category).order_by('-views')
+                context_dict['pages'] = pages
+
+    return render(request, 'rango/page_list.html', context_dict)
+
+
+
+
+

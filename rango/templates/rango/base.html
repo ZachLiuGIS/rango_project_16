@@ -25,7 +25,6 @@
                     <ul class="nav navbar-nav">
                             <li><a href="{% url 'rango:about' %}">About</a></li>
                         {% if user.is_authenticated %}
-                            <li><a href="{% url 'rango:restricted' %}">Restricted Page</a></li>
                             <li><a href="{% url 'rango:add_category' %}">Add Category</a></li>
                             <li><a href="{% url 'rango:profile' %}">User Profile</a></li>
                             <li><a href="{% url 'rango:logout' %}">Logout</a></li>
@@ -51,13 +50,19 @@
             <div class="row">
                 <div class="col-xs-12 col-md-3 sidebar-module well zl-sidebar">
                     {% block sidebar_block %}
-                    {% endblock %}
-                    <div id="cats">
-                       {% if cat_list %}
-                           <ul class="nav nav-list"><li>Category List</li></ul>
-                           {% include 'rango/category_list.html' with cat_list=cat_list %}
-                       {% endif %}
+                    <div id="cats-suggestion">
+                        <div class="form-group">
+                            <label for="suggestion" class="text-muted">Find a category:</label>
+                            <input  class="form-control" type="text" name="suggestion" value="" id="suggestion" />
+                        </div>
                     </div>
+                    {% if cat_list %}
+                        <div id="cats">
+                           {% include 'rango/category_list.html' with cat_list=cat_list %}
+                        </div>
+                    {% endif %}
+                    {% endblock %}
+
                 </div>
                 <div class="col-xs-6 col-md-9 zl-content-main">
                     {% block body_block %}{% endblock %}
@@ -76,5 +81,6 @@
     <script src="https://code.jquery.com/jquery.js"></script>
     <!-- Include all compiled plugins (below), or include individual files as needed -->
     <script src="{% static 'bootstrap/js/bootstrap.min.js' %}"></script>
+    <script src="{% static 'rango/js/rango-ajax.js' %}"></script>
     </body>
 </html>

@@ -4,19 +4,21 @@
 {% block title %}About{% endblock %}
 
 {% block body_block %}
-   <h1>About Rango</h1>
-        {% if visits > 0 %}
-            {% if user.is_authenticated %}
-                <p>Hello, {{ user.username }}</p>
-            {% endif%}
-                <p>This is the {{ visits }} time you visit our site!</p>
+<div class="jumbotron zl-category-div">
+        <h2 class="content-heading">About Rango</h2>
+    {% if visits > 0 %}
+        {% if user.is_authenticated %}
+            <p>Hello, {{ user.username }}</p>
+        {% endif%}
+            <p>This is the {{ visits }} time you visit our site!</p>
+    {% else %}
+        {% if user.is_authenticated %}
+            <h1>Welcome {{ user.username }} for your first visit!</h1>
         {% else %}
-            {% if user.is_authenticated %}
-                <h1>Welcome {{ user.username }} for your first visit!</h1>
-            {% else %}
-                <h1>Welcome! This is your first visit!</h1>
-            {% endif %}
+            <h1>Welcome! This is your first visit!</h1>
         {% endif %}
-        <a href="/rango/">Home</a><br />
-        <img src="{% static 'rango/images/rango-picture.png' %}" alt="Picture of Rango" />
+    {% endif %}
+    <img src="{% static 'rango/images/rango-picture.png' %}" alt="Picture of Rango" />
+</div>
+
 {% endblock %}
